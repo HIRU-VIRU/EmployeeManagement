@@ -1,40 +1,50 @@
 package com.example.EmployeeManagement.Entity;
 
+import lombok.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.util.Collection;
+import java.util.List;
 
-
-
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
+@Table(name = "employee")
 @Getter
 @Setter
-@Entity
-@Table(name="employee")
-public class Employee {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Employee implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false, updatable = false)
     private Long id;
 
-
-    @Column(name="Role", nullable = false,updatable=false)
-    private String role;
-
-    @Column(name="password",nullable = false)
-    private String password;
-
-
-
-
-
-    @Column(name = "username", nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = false)
+    private String password;
 
-    @Column(name = "salary", nullable = false)
+    @Column(nullable = false)
+    private String role;  // Example: "ADMIN" or "EMPLOYEE"
+
     private int salary;
+
+    // 🔹 Spring Security requires this method
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(() -> "ROLE_" + role);  // Converts "ADMIN" → "ROLE_ADMIN"
+    }
+
+    @Override
+    public boolean isAccountNonExpired() { return true; }
+
+    @Override
+    public boolean isAccountNonLocked() { return true; }
+
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
+
+    @Override
+    public boolean isEnabled() { return true; }
 }
